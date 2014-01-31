@@ -8,6 +8,13 @@
 using namespace std;
 using namespace cv;
 
+typedef struct {
+    int canny_low;
+    int canny_high;
+    double threshold;
+} slider;
+
+
 int main(int argc, char * argv[]){
     const string window_name = "main";
     VideoCapture video;
@@ -29,12 +36,14 @@ int main(int argc, char * argv[]){
     namedWindow(window_name, CV_WINDOW_NORMAL);
 
     Mat frame;
+    bool has_read_correctly;
+
     while (true){
 
-       bool has_read = video.read(frame); // read a new frame from video
+       has_read_correctly = video.read(frame);
 
-       if (!has_read){
-           cout << "A reading error occured.";
+       if (!has_read_correctly){
+           cout << "A reading error occured." << endl;
            return -1;
        }
 
