@@ -45,6 +45,9 @@ void createOptions(const string window_name, slider_options * options){
 
 int main(int argc, char * argv[]){
     const string window_name = "main";
+    const int exit_key = 27;
+    const int pause_key = 32;
+
     VideoCapture video;
 
     if (argc < 2){
@@ -68,26 +71,34 @@ int main(int argc, char * argv[]){
     createOptions(window_name, &options);
 
 
-
     Mat frame;
     bool has_read_correctly;
+    bool paused = false;
 
     while (true){
 
-       has_read_correctly = video.read(frame);
+        int key = waitKey(1);
 
-       if (!has_read_correctly){
+        if (key == exit_key){
+           return 0;
+        }
+        else if (key == pause_key){
+            paused = !paused;
+        }
+
+        if (paused){
+            continue;
+        }
+
+        has_read_correctly = video.read(frame);
+
+        if (!has_read_correctly){
            cout << "A reading error occured." << endl;
            return -1;
-       }
+        }
 
+        imshow(window_name, frame);
 
-       imshow(window_name, frame);
-       int key = waitKey(1);
-
-       if (key == 27){
-           return 0;
-       }
     }
 
     return 0;
