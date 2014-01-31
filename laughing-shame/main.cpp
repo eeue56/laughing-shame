@@ -1,3 +1,5 @@
+#include "helper_methods.h"
+
 #include <iostream>
 
 #include <opencv/cv.h>
@@ -13,6 +15,21 @@ typedef struct {
     int canny_high;
     double threshold;
 } slider_options;
+
+void on_canny_low(int pos, void *options_){
+    slider_options * options = (slider_options *)options_;
+    options->canny_low = pos;
+}
+
+void on_canny_high(int pos, void *options_){
+    slider_options * options = (slider_options *)options_;
+    options->canny_high = pos;
+}
+
+void on_threshold(int pos, void *options_){
+    slider_options * options = (slider_options *)options_;
+    options->threshold = map_range(pos, 0, 255, 0.0, 1.0);
+}
 
 
 int main(int argc, char * arv4lgv[]){
