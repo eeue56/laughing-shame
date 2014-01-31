@@ -31,8 +31,19 @@ void on_threshold(int pos, void *options_){
     options->threshold = map_range(pos, 0, 255, 0.0, 1.0);
 }
 
+void createOptions(const string window_name, slider_options * options){
+    int low = 5;
+    int high = 100;
+    int threshold = 5;
 
-int main(int argc, char * arv4lgv[]){
+    createTrackbar("Canny low", window_name, &low, 255, &on_canny_low, options);
+
+    createTrackbar("Canny high", window_name, &high, 255, &on_canny_high, options);
+
+    createTrackbar("Threshold", window_name, &threshold, 255, &on_threshold, options);
+}
+
+int main(int argc, char * argv[]){
     const string window_name = "main";
     VideoCapture video;
 
@@ -47,9 +58,16 @@ int main(int argc, char * arv4lgv[]){
 
     if (!video.isOpened()){
         cout << "Failed to open video." << endl;
+        return -1;
     }
 
+
+    slider_options options;
+
     namedWindow(window_name, CV_WINDOW_NORMAL);
+    createOptions(window_name, &options);
+
+
 
     Mat frame;
     bool has_read_correctly;
@@ -65,7 +83,11 @@ int main(int argc, char * arv4lgv[]){
 
 
        imshow(window_name, frame);
-       waitKey(1);
+       int key = waitKey(1);
+
+       if (key == 27){
+           return 0;
+       }
     }
 
     return 0;
