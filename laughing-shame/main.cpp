@@ -12,13 +12,12 @@ typedef struct {
     int canny_low;
     int canny_high;
     double threshold;
-} slider;
+} slider_options;
 
 
-int main(int argc, char * argv[]){
+int main(int argc, char * arv4lgv[]){
     const string window_name = "main";
     VideoCapture video;
-
 
     if (argc < 2){
         video = VideoCapture(0);
