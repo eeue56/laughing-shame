@@ -97,7 +97,12 @@ int main(int argc, char * argv[]){
            return -1;
         }
 
+        Mat canny;
+        Canny(frame, canny, options.canny_low, options.canny_high);
+
         imshow(window_name, frame);
+
+        imshow(window_name, canny);
 
     }
 
