@@ -7,6 +7,9 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+#define MAX_THRESHOLD 255
+#define MIN_THRESHOLD 0
+
 using namespace std;
 using namespace cv;
 
@@ -28,7 +31,7 @@ void on_canny_high(int pos, void *options_){
 
 void on_threshold(int pos, void *options_){
     slider_options * options = (slider_options *)options_;
-    options->threshold = map_range(pos, 0, 255, 0.0, 1.0);
+    options->threshold = map_range(pos, MIN_THRESHOLD, MAX_THRESHOLD, 0.0, 1.0);
 }
 
 void createOptions(const string window_name, slider_options * options){
@@ -37,14 +40,18 @@ void createOptions(const string window_name, slider_options * options){
     int threshold = 5;
 
     createTrackbar("Canny low", window_name, &low, 255, &on_canny_low, options);
+    options->canny_high = high;
 
     createTrackbar("Canny high", window_name, &high, 255, &on_canny_high, options);
+    options->canny_low = low;
 
-    createTrackbar("Threshold", window_name, &threshold, 255, &on_threshold, options);
+    createTrackbar("Threshold", window_name, &threshold, MAX_THRESHOLD, &on_threshold, options);
+    options->threshold = threshold;
 }
 
 int main(int argc, char * argv[]){
     const string window_name = "main";
+    const string results_window_name = "results";
     const int exit_key = 27;
     const int pause_key = 32;
 
@@ -68,6 +75,7 @@ int main(int argc, char * argv[]){
     slider_options options;
 
     namedWindow(window_name, CV_WINDOW_NORMAL);
+    namedWindow(results_window_name, CV_WINDOW_NORMAL);
     createOptions(window_name, &options);
 
 
@@ -102,7 +110,7 @@ int main(int argc, char * argv[]){
 
         imshow(window_name, frame);
 
-        imshow(window_name, canny);
+        imshow(results_window_name, canny);
 
     }
 
