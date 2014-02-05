@@ -108,6 +108,20 @@ int main(int argc, char * argv[]){
         Mat canny;
         Canny(frame, canny, options.canny_low, options.canny_high);
 
+        vector<Vec3f> circles;
+        medianBlur(canny, canny, 5);
+        HoughCircles(canny, circles, CV_HOUGH_GRADIENT, 
+                     canny.rows / 4, 200, 100);
+        
+        for( size_t i = 0; i < circles.size(); i++ ) {
+            Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
+            int radius = cvRound(circles[i][2]);
+            // circle center
+            circle(frame, center, 3, Scalar(0,255,0), -1, 8, 0 );
+            // circle outline
+            circle(frame, center, radius, Scalar(0,0,255), 3, 8, 0 );
+        }
+        
         imshow(window_name, frame);
 
         imshow(results_window_name, canny);
