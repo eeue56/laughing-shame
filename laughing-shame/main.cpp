@@ -31,7 +31,8 @@ void on_canny_high(int pos, void *options_){
 
 void on_threshold(int pos, void *options_){
     slider_options * options = (slider_options *)options_;
-    options->threshold = map_range(pos, MIN_THRESHOLD, MAX_THRESHOLD, 0.0, 1.0);
+    options->threshold = map_range(pos, MIN_THRESHOLD, MAX_THRESHOLD, 1, 100);
+    cout << options->threshold << endl;
 }
 
 void createOptions(const string window_name, slider_options * options){
@@ -81,7 +82,6 @@ int main(int argc, char * argv[]){
 
     Mat frame;
     Mat paused_frame;
-    frame.zeros(frame.size(), 0);
     bool has_read_correctly;
     bool paused = false;
 
@@ -124,7 +124,7 @@ int main(int argc, char * argv[]){
         vector<Vec3f> circles;
         GaussianBlur(canny, canny, Size(9, 9), 2, 2);
         HoughCircles(canny, circles, CV_HOUGH_GRADIENT, 1,
-                     canny.rows / 10, options.canny_high, options.canny_high / 2, 5, 50);
+                     canny.rows / 10, options.canny_high, options.threshold, 0, 50);
         
         for( size_t i = 0; i < circles.size(); i++ ) {
             Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
