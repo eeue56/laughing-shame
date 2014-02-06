@@ -21,12 +21,12 @@ typedef struct {
 
 void on_canny_low(int pos, void *options_){
     slider_options * options = (slider_options *)options_;
-    options->canny_low = pos;
+    options->canny_low = pos + 1;
 }
 
 void on_canny_high(int pos, void *options_){
     slider_options * options = (slider_options *)options_;
-    options->canny_high = pos;
+    options->canny_high = pos + 1;
 }
 
 void on_threshold(int pos, void *options_){
