@@ -80,38 +80,50 @@ int main(int argc, char * argv[]){
 
 
     Mat frame;
+    Mat paused_frame;
     bool has_read_correctly;
     bool paused = false;
 
     while (true){
 
-        int key = waitKey(1);
+        int key = waitKey(25);
 
         if (key == exit_key){
-           return 0;
+            return 0;
         }
         else if (key == pause_key){
             paused = !paused;
+
+            has_read_correctly = video.read(paused_frame);
+
+            if (!has_read_correctly){
+               cout << "A reading error occured." << endl;
+               return -1;
+            }
         }
 
-        if (paused){
-            continue;
+
+        if(!paused){
+            has_read_correctly = video.read(frame);
+
+            if (!has_read_correctly){
+               cout << "A reading error occured." << endl;
+               return -1;
+            }
+
+        }
+        else{
+            paused_frame.copyTo(frame);
         }
 
-        has_read_correctly = video.read(frame);
-
-        if (!has_read_correctly){
-           cout << "A reading error occured." << endl;
-           return -1;
-        }
 
         Mat canny;
-        Canny(frame, canny, options.canny_low, options.canny_high);
 
+        Canny(frame, canny, options.canny_low, options.canny_high);
         vector<Vec3f> circles;
-        medianBlur(canny, canny, 5);
-        HoughCircles(canny, circles, CV_HOUGH_GRADIENT, 
-                     canny.rows / 4, 200, 100);
+        GaussianBlur(canny, canny, Size(9, 9), 2, 2);
+        HoughCircles(canny, circles, CV_HOUGH_GRADIENT, 1,
+                     canny.rows / 10, options.canny_high, options.canny_high / 2, 5, 50);
         
         for( size_t i = 0; i < circles.size(); i++ ) {
             Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
@@ -125,6 +137,7 @@ int main(int argc, char * argv[]){
         imshow(window_name, frame);
 
         imshow(results_window_name, canny);
+
 
     }
 
