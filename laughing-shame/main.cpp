@@ -81,6 +81,7 @@ int main(int argc, char * argv[]){
 
     Mat frame;
     Mat paused_frame;
+    frame.zeros(frame.size(), 0);
     bool has_read_correctly;
     bool paused = false;
 
