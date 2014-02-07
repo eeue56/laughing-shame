@@ -17,3 +17,7 @@ float map_range(float value, float min_a, float max_a, float min_b, float max_b)
 
     return min_b + (scaled * b_span);
 }
+
+float euc_dist(float x1, float y1, float x2, float y2) {
+    return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
+}

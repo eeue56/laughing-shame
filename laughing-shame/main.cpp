@@ -19,23 +19,42 @@ typedef struct {
     double threshold;
 } slider_options;
 
+typedef struct {
+    int selected;
+    vector<Vec3f> circles;    
+} click_event;
+
 void on_canny_low(int pos, void *options_){
-    slider_options * options = (slider_options *)options_;
+    slider_options *options = (slider_options *)options_;
     options->canny_low = pos + 1;
 }
 
 void on_canny_high(int pos, void *options_){
-    slider_options * options = (slider_options *)options_;
+    slider_options *options = (slider_options *)options_;
     options->canny_high = pos + 1;
 }
 
 void on_threshold(int pos, void *options_){
-    slider_options * options = (slider_options *)options_;
+    slider_options *options = (slider_options *)options_;
     options->threshold = map_range(pos, MIN_THRESHOLD, MAX_THRESHOLD, 1, 100);
     cout << options->threshold << endl;
 }
 
-void createOptions(const string window_name, slider_options * options){
+void on_click(int event, int x, int y, int flags, void *options_){
+    click_event *click = (click_event *)options_;
+    for(size_t i = 0; i < click->circles.size(); i++) {
+        // if the distance from click to center of circle is less than radius
+        if(euc_dist(x, y, click->circles[i][0], click->circles[i][1]) < click->circles[i][2]) {
+            click->selected = i;
+        }
+    }
+}
+
+void registerClick(const string window_name, click_event *options) {
+    setMouseCallback(window_name, on_click, options);
+}
+
+void createOptions(const string window_name, slider_options *options){
     int low = 5;
     int high = 100;
     int threshold = 5;
@@ -74,11 +93,13 @@ int main(int argc, char * argv[]){
 
 
     slider_options options;
-
+    click_event click;
+            
     namedWindow(window_name, CV_WINDOW_NORMAL);
     namedWindow(results_window_name, CV_WINDOW_NORMAL);
     createOptions(window_name, &options);
-
+    
+    registerClick(window_name, &click);
 
     Mat frame;
     Mat paused_frame;
@@ -111,7 +132,6 @@ int main(int argc, char * argv[]){
                cout << "A reading error occured." << endl;
                return -1;
             }
-
         }
         else{
             paused_frame.copyTo(frame);
@@ -119,18 +139,21 @@ int main(int argc, char * argv[]){
 
 
         Mat canny;
-
         Canny(frame, canny, options.canny_low, options.canny_high);
-        vector<Vec3f> circles;
         GaussianBlur(canny, canny, Size(9, 9), 2, 2);
-        HoughCircles(canny, circles, CV_HOUGH_GRADIENT, 1,
+        HoughCircles(canny, click.circles, CV_HOUGH_GRADIENT, 1,
                      canny.rows / 10, options.canny_high, options.threshold, 0, 50);
         
-        for( size_t i = 0; i < circles.size(); i++ ) {
-            Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-            int radius = cvRound(circles[i][2]);
+        for( size_t i = 0; i < click.circles.size(); i++ ) {
+            
+            Point center(cvRound(click.circles[i][0]), cvRound(click.circles[i][1]));
+            int radius = cvRound(click.circles[i][2]);
             // circle center
-            circle(frame, center, 3, Scalar(0,255,0), -1, 8, 0 );
+            if(i == click.selected) {
+                circle(frame, center, 3, Scalar(0,255,0), -1, 8, 0 );
+            } else {
+                circle(frame, center, 3, Scalar(255,0,0), -1, 8, 0 );
+            }
             // circle outline
             circle(frame, center, radius, Scalar(0,0,255), 3, 8, 0 );
         }
