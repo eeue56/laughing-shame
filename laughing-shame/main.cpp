@@ -21,6 +21,8 @@ typedef struct {
 
 typedef struct {
     int selected;
+    int last_x;
+    int last_y;
     vector<Vec3f> circles;    
 } click_event;
 
@@ -40,11 +42,50 @@ void on_threshold(int pos, void *options_){
     cout << options->threshold << endl;
 }
 
+
+void update_selected(void *options_){
+    click_event *click = (click_event *)options_;
+
+    if (click->selected < 1){
+        return;
+    }
+
+    float smallest = 1000000;
+    int selected = click->selected;
+    float dist = 0;
+
+
+    for(size_t i = 0; i < click->circles.size(); i++) {
+        // if the distance from click to center of circle is less than radius
+        dist = euc_dist(click->last_x, click->last_y, click->circles[i][0], click->circles[i][1]);
+        if (dist < smallest) {
+            smallest = dist;
+            selected = i;
+
+        }
+    }
+
+    click->selected = selected;
+    click->last_x = click->circles[selected][0];
+    click->last_y = click->circles[selected][1];
+
+}
+
 void on_click(int event, int x, int y, int flags, void *options_){
     click_event *click = (click_event *)options_;
+
+    if (event != EVENT_LBUTTONDOWN){
+        if(event == EVENT_RBUTTONDOWN){
+            click->selected = -1;
+        }
+        return;
+    }
+
     for(size_t i = 0; i < click->circles.size(); i++) {
         // if the distance from click to center of circle is less than radius
         if(euc_dist(x, y, click->circles[i][0], click->circles[i][1]) < click->circles[i][2]) {
+            click->last_x = click->circles[i][0];
+            click->last_y = click->circles[i][1];
             click->selected = i;
         }
     }
@@ -94,6 +135,8 @@ int main(int argc, char * argv[]){
 
     slider_options options;
     click_event click;
+
+    click.selected = -1;
             
     namedWindow(window_name, CV_WINDOW_NORMAL);
     namedWindow(results_window_name, CV_WINDOW_NORMAL);
@@ -151,16 +194,19 @@ int main(int argc, char * argv[]){
             // circle center
             if(i == click.selected) {
                 circle(frame, center, 3, Scalar(0,255,0), -1, 8, 0 );
+                circle(frame, center, radius, Scalar(0,255,0), 3, 8, 0 );
             } else {
+                circle(frame, center, radius, Scalar(0,0,255), 3, 8, 0 );
                 circle(frame, center, 3, Scalar(255,0,0), -1, 8, 0 );
             }
             // circle outline
-            circle(frame, center, radius, Scalar(0,0,255), 3, 8, 0 );
         }
         
         imshow(window_name, frame);
 
         imshow(results_window_name, canny);
+
+        update_selected(&click);
 
 
     }
