@@ -96,9 +96,9 @@ void registerClick(const string window_name, click_event *options) {
 }
 
 void createOptions(const string window_name, slider_options *options){
-    int low = 5;
-    int high = 100;
-    int threshold = 5;
+    int low = 75;
+    int high = 58;
+    int threshold = 60;
 
     createTrackbar("Canny low", window_name, &low, 255, &on_canny_low, options);
     options->canny_high = high;
